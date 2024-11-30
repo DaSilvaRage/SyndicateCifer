@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Универсальный шифровальщик Синдиката</title>
+    <style>
+        /* Основное оформление страницы */
+        body {
+            font-family: 'Courier New', monospace;
+            background: url('https://i.ibb.co/KcgrmFJ/syndicate.gif') no-repeat center center fixed;
+            background-size: cover; /* Подгонка изображения под размер экрана */
+            color: #00ff00;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .container {
+            text-align: center;
+            color: #00ff00;
+            z-index: 10;
+            max-width: 600px; /* Ограничиваем максимальную ширину контейнера */
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 2em;
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 10px;
+            font-size: 1.2em;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+            margin-bottom: 10px;
+        }
+
+        button {
+            background-color: #00ff00;
+            color: #1a1a1a;
+            padding: 10px 20px;
+            border: none;
+            font-size: 1.2em;
+            cursor: pointer;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #33cc33;
+        }
+
+        .result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Основной контейнер с интерфейсом -->
+    <div class="container">
+        <h1>Универсальный шифровальщик Синдиката</h1>
+        <textarea id="inputText" placeholder="Введите текст для шифрования/дешифрования..."></textarea><br>
+        <textarea id="keyText" placeholder="Введите ключ для шифрования/дешифрования..."></textarea><br>
+        <button onclick="encrypt()">Зашифровать</button>
+        <button onclick="decrypt()">Дешифровать</button>
+        <div class="result">
+            <h3>Результат:</h3>
+            <textarea id="resultText" readonly></textarea>
+        </div>
+    </div>
+
+    <script>
+        // Русский алфавит
+        const russianAlphabet = "абвгдеёжзийклмнопрстуфхцчшщытэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЫТЭЮЯ";
+
+        // Функция для повтора ключа до длины текста
+        function extendKey(key, textLength) {
+            let extendedKey = key;
+            while (extendedKey.length < textLength) {
+                extendedKey += key;
+            }
+            return extendedKey.slice(0, textLength); // Урезаем ключ, если он стал длиннее текста
+        }
+
+        // Функция шифрования / дешифрования с использованием алгоритма Вернама
+        function vernamEncrypt(text, key, alphabet) {
+            let result = '';
+            key = extendKey(key, text.length);  // Расширяем ключ до длины текста
+
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                const keyChar = key[i];
+                const charCode = alphabet.indexOf(char);
+                const keyCharCode = alphabet.indexOf(keyChar);
+
+                if (charCode === -1) {
+                    // Пропускаем символы, не входящие в алфавит
+                    result += char;
+                    continue;
+                }
+
+                // XOR операции с индексами
+                const encryptedCharCode = (charCode ^ keyCharCode) % alphabet.length;
+                result += alphabet[encryptedCharCode];
+            }
+            return result;
+        }
+
+        // Шифрование
+        function encrypt() {
+            const text = document.getElementById("inputText").value;
+            const key = document.getElementById("keyText").value;
+
+            if (key.length === 0) {
+                alert("Ключ не может быть пустым");
+                return;
+            }
+
+            let encryptedText = vernamEncrypt(text, key, russianAlphabet);
+            document.getElementById("resultText").value = encryptedText;
+        }
+
+        // Дешифрование
+        function decrypt() {
+            const text = document.getElementById("inputText").value;
+            const key = document.getElementById("keyText").value;
+
+            if (key.length === 0) {
+                alert("Ключ не может быть пустым");
+                return;
+            }
+
+            let decryptedText = vernamEncrypt(text, key, russianAlphabet);
+            document.getElementById("resultText").value = decryptedText;
+        }
+
+    </script>
+</body>
+</html>
